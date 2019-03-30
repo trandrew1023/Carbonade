@@ -1,0 +1,447 @@
+REM *****************************************
+RemStart
+    *** TITLE - Carbonade - Fetch the Fruit
+    *** VERSION - 1.0.0 LAST UPDATED - 5.13.2004
+    *** DEVELOPER - Jason Holm
+
+    *** COPYRIGHT - Ingenious Student Labs
+    *** DATE CREATED - 5.11.2004
+    ***
+RemEnd
+REM *** START SYSTEM SETUP SECTION
+
+sync on : sync rate 60
+autocam off
+hide mouse
+randomize timer()
+
+REM *** STOP SYSTEM SETUP SECTION
+REM *****************************************
+
+REM *****************************************
+REM *** START INTRO SECTION
+REM *** INTRO SECTION HEADER
+
+REM DECLARE VARIABLES
+REM SCREEN DISPLAY
+
+cls 0
+load bitmap "images/intro.bmp"                                                                            REM Changed to Intro section screen 11/08/15
+ink rgb(0,0,0),0 : set text font "arial" : set text size 14 : set text to bold : set text transparent
+center text 320,420,"Developed by Jason Holm and Andrew Tran"
+center text 320,434,"Copyright (c) 2004 Ingenious Student Labs"
+REM LOAD SOUNDS
+Load sound "sounds/Epic_Unease.wav",1 : set sound volume 1,95
+Load sound "sounds/music_end.wav",2 : set sound volume 2,50
+Load sound "sounds/Bottles_Empty_Close.wav",3 : set sound volume 3,80
+Load sound "sounds/burp.wav",4 : set sound volume 4,90
+Load sound "sounds/loudburp.wav",5 :
+Load sound "sounds/Jump_On_Soggy_Grass.wav",6                                                             REM New jump sound
+Load sound "sounds/Light_Rain.wav",7 : set sound volume 7,75                                        REM Added thunder sound 7 11/05/15 11:35
+REM SOUND EFFECTS
+REM LOAD AVI (animations)
+Load animation "animations/Carbonade Intro.avi",1                                                         REM Added intro animation 11/05/15 11:36
+REM SPECIAL EFFECTS
+REM REFRESH SCREEN
+sync
+
+REM *** INTRO SECTION LOOP
+do
+   REM SCREEN DISPLAY
+   REM CONTROL INPUT
+   play sound 1
+   rem if Keystate(scancode())=1 then play animation 1
+   if Keystate(scancode())=1 then gosub OptionsSection
+   if sound playing(7)=1 then stop sound 1
+   play sound 7
+   REM REFRESH SCREEN
+   sync
+loop
+
+REM *** END INTRO SECTION
+REM *****************************************
+
+REM *****************************************
+REM *** START OPTIONS SECTION
+REM *** OPTIONS SECTION HEADER
+
+OptionsSection:
+REM DECLARE VARIABLES
+REM SCREEN DISPLAY
+REM SOUND EFFECTS
+REM SPECIAL EFFECTS
+REM REFRESH SCREEN
+
+REM *** OPTIONS SECTION LOOP
+
+   REM CONTROL INPUT
+   REM REFRESH SCREEN
+
+REM *** END OPTIONS SECTION
+REM *****************************************
+
+REM *****************************************
+REM *** START MAIN SECTION
+REM *** MAIN SECTION HEADER
+
+MainSection:
+REM DECLARE VARIABLES
+MyTimer = 3000 : rem MyTimer / sync rate = seconds on timer (approx.)
+Gravity# = 1 : rem How powerful gravity is
+MyPower = 10 : rem How strong the player can jump
+MySpeed = 9 : rem How fast the player can run
+
+
+
+MyScore = 0 : rem Starting score is 0
+MyAcceleration# = 10.0 : rem Start without jumping or falling
+
+REM SCREEN DISPLAY
+cls 0 : backdrop on
+
+REM LOAD IMAGES
+Load image "images/CarbonAde-can_label 0.bmp",1
+Load image "images/CarbonAde-can_label 1.bmp",22
+Load image "images/CarbonAde-can_label 2.bmp",23
+Load image "images/CarbonAde-can_label 3.bmp",24
+Load image "images/CarbonAde-can_label.bmp",25
+Load image "images/dark forest scene.png",2                                                                    REM Updated the North wall image 11/09/15 11:51
+Load image "images/dark forest scene.png",3                                                                    REM Updated the East wall image 11/09/15 12:02
+Load image "images/dark forest scene.png",4                                                                    REM Updated the South wall image 11/09/15 12:02
+Load image "images/dark forest scene.png",5                                                                    REM Updated the West wall image 11/09/15 11:52
+Load image "images/CarbonAde-can_lid.bmp",99
+Load image "images/bonus.bmp",100
+Load image "images/floor1.jpg",6
+
+remstart create a floor texture
+create bitmap 6,32,32
+   cls rgb(0,155,0)
+   ink rgb(0,145,0),0
+   box 4,4,12,12
+   get image 6,0,0,32,32
+delete bitmap 6
+remend
+REM OBJECT CREATION
+
+Rem Player Character
+make object cylinder 1,50
+scale object 1,100,140,100
+texture object 1,1
+position object 1,0,35,0
+make object collision box 1,-25,-35,-25,25,35,25,0
+
+
+
+make object sphere 99,50
+Scale object 99, 100,90,90
+xrotate Object 99,90
+yrotate object 99,30
+zrotate object 99,0
+make mesh from object 1,99
+delete object 99
+rem By playing with the limb scale I am attempting to get the can cover correctly aligned with the can.  Orignal values :100,0,100
+add limb 1,1,1
+link limb 1,0,1
+offset limb 1,1,-1,25,-8
+rem original scale values: 100,0,100
+scale limb 1,1,98,0,75
+texture limb 1,1,99
+
+rem Walls
+
+   rem North Wall
+   make object box 2,2000,1000,10
+   rotate object 2,0,0,0
+   position object 2, 0,500,1005
+   texture object 2,2
+
+   rem East Wall
+   make object box 3,2000,1000,10
+   rotate object 3,0,90,0
+   position object 3, 1005,500,0
+   texture object 3,3
+
+   rem North Wall
+   make object box 4,2000,1000,10
+   rotate object 4,0,180,0
+   position object 4, 0,500,-1005
+   texture object 4,4
+
+   rem West Wall
+   make object box 5,2000,1000,10
+   rotate object 5,0,270,0
+   position object 5, -1005,500,0
+   texture object 5,5
+
+rem Floor
+make object box 6,2000,1000,2000 : position object 6,0,-500,0 : color object 6,rgb(0,255,0)
+make object collision box 6,-1000,-500,-1000,1000,500,1000,0
+texture object 6,6 : scale object texture 6,50,50
+
+rem Steps
+for t=0 to 5
+   make object box t+7,50,10,50
+   position object t+7,0,5+(t*20),100+(t*100)
+   color object t+7,rgb(100,200,100)
+   make object collision box t+7,-25,-5,-25,25,5,25,0
+next t
+
+rem Fruits
+NumberOfFruits = 20
+FruitColor = 0
+for t = 1 to NumberOfFruits
+
+   if FruitColor = 0
+      r = 255 : g = 0
+   endif
+   if FruitColor = 1
+      r = 255 : g = 255
+   endif
+   if FruitColor = 2
+      r = 0 : g = 255
+   endif
+   if FruitColor = 3
+      r = 255 : g = 125
+   endif
+   FruitColor = FruitColor + 1
+   if FruitColor = 4 then FruitColor = 0
+
+   make object sphere t + NumberOfFruits ,50
+   color object t + NumberOfFruits , rgb(r,g,0)
+   position object t + NumberOfFruits ,Rnd(1900)-950,30,Rnd(1900)-950
+   make object collision box t + NumberOfFruits ,-25,-25,-25,25,25,25,0
+next t
+
+rem Super Fruit
+make object sphere 100,100
+   texture object 100,100
+   position object 100 ,0,180,725
+   make object collision box 100,-50,-50,-50,50,50,50,0
+
+REM LOAD MODELS
+REM SET COLLISIONS
+REM SET CAMERA
+REM SOUND EFFECTS
+play sound 3
+REM SPECIAL EFFECTS
+REM REFRESH SCREEN
+sync
+
+REM *** MAIN SECTION LOOP
+do
+   if scancode()=0 then exit
+loop
+do
+   REM SPECIAL EFFECTS
+   REM OBJECT ORIENTATIONS
+   P1X# = object position X(1)
+   P1Y# = object position Y(1)
+   P1Z# = object position Z(1)
+   A1X = object angle X(1)
+   A1Y = object angle Y(1)
+   A1Z = object angle Z(1)
+   REM CAMERA ORIENTATIONS
+   cpX# = camera position X()
+   cpY# = camera position Y()
+   cpZ# = camera position Z()
+   caX# = camera angle X()
+   caY# = camera angle Y()
+   caZ# = camera angle Z()
+   REM LIVE SCREEN DISPLAY
+   ink rgb(255,255,255),0 : set text size 16 : set text to bold : set text transparent
+   center text 320,420,"USE ARROW KEYS TO MOVE   |   PRESS SPACE BAR TO JUMP"
+   center text 320,440,"PRESS 'Q' TO QUIT"
+   set cursor 0,0
+   print "Seconds Left: ";(MyTimer/60)+1
+      Rem at 60 frames a second, every timer countdown is 1/60th of a second,
+      Rem so this will display the time left as whole seconds
+   set cursor 0,20
+   print "SCORE: ";MyScore
+
+   REM CONTROL INPUT
+
+   if Spacekey()=1 and MyAcceleration# = 0.0 : rem Make sure I've fully landed before I can jump again
+      P1Y# = P1Y# - Gravity# : rem Look below me
+      position object 1, P1X#,P1Y#,P1Z# : rem Feel below me
+      for t = 6 to 12
+         if object collision(1,t)>0 : rem If feel a solid object below me
+            MyAcceleration# = MyPower : rem Prepare to jump!
+            play sound 6
+         endif
+      next t
+      P1Y# = P1Y# + Gravity# : rem Look up
+      position object 1, P1X#,P1Y#,P1Z# : rem Move back
+   endif
+
+   if Upkey()=1 then move object 1,MySpeed
+   if Downkey()=1 then move object 1,0-MySpeed
+   if Leftkey()=1 then A1Y = wrapvalue(A1Y-(MySpeed/3))
+   if Rightkey()=1 then A1Y = wrapvalue(A1Y+(MySpeed/3))
+
+   if Inkey$()="q"
+      for x = 1 to 100
+         if object exist(x) = 1 then delete object x
+      next x
+      backdrop off
+      gosub EndSection
+   endif
+   REM TRANSFORM OBJECTS
+   REM MOVE OBJECTS
+   Yrotate object 1,A1Y
+
+   REM CHECK FOR COLLISION
+   rem Now that I've moved, record the new position
+   P1Xcol# = object position X(1)
+   P1Zcol# = object position Z(1)
+
+   Rem Arena Collision - Keep the player inside the walls
+
+      if P1Xcol#<-975 then P1Xcol#=-975 : rem If I try to pass through the west wall, find the place I should stay
+      if P1Zcol#<-975 then P1Zcol#=-975 : rem If I try to pass through the south wall, find the place I should stay
+      if P1Xcol#>975 then P1Xcol#=975 : rem If I try to pass through the east wall, find the place I should stay
+      if P1Zcol#>975 then P1Zcol#=975 : rem If I try to pass through the north wall, find the place I should stay
+
+   Rem Steps Collision
+
+      StepsHit = 0 : rem Get ready to start checking collisions
+      for CheckStep = 7 to 12 : rem Check all 7 step objects one at a time
+         if object collision(1,CheckStep)>0 : rem If I'm touching the object I'm currently checking
+            StepsHit = StepsHit + 1 : rem Mark me up for a collision
+         endif
+      next t : rem Check next step object
+
+   Rem Reset Collision Positions
+
+      if StepsHit > 0 : rem If I hit any steps
+         position object 1, P1X#,P1Y#,P1Z# : rem Put me back where I was
+      else : rem If I'm not hitting a step, I might be hitting a wall
+         position object 1, P1Xcol#,P1Y#,P1Zcol# : rem Keep me inside the walls - just in case
+         P1X# = P1Xcol# : P1Z# = P1Zcol# : rem Reset collision variables
+      endif
+
+      A1Y# = object angle Y(1) : rem Record the angle I'm facing
+
+   Rem Gravity Effects
+
+      if MyAcceleration# = 0.0 : rem If I'm not moving up or down
+         EmptySpace = 0 : ObjectsChecked = 0 : rem Get ready to start checking collisions
+         for CheckObject = 6 to 12 : rem Check the floor and every step object
+            if object collision(1,CheckObject)>0 : rem If I'm touching something
+               P1Y# = P1Y# - Gravity# : rem Look below me
+               position object 1, P1X#,P1Y#,P1Z# : rem Feel below me
+               if object collision(1,CheckObject) = 0 : rem If I feel only air
+                  EmptySpace = EmptySpace + 1 : rem Mark up a free space
+               endif : rem I'm touching something, but it's not below me
+               P1Y# = P1Y# + Gravity# : rem Look up
+               position object 1, P1X#,P1Y#,P1Z# : rem Move back
+            else : rem If I'm not touching anything
+               EmptySpace = EmptySpace + 1 : rem rem Mark up a free space
+            endif
+            ObjectsChecked = ObjectsChecked + 1 : rem Done with that one!
+         next CheckObject : rem On to the next one!
+         if EmptySpace = ObjectsChecked : rem If I've checked all the objects and nothing is below me
+            MyAcceleration# = MyAcceleration# - Gravity# : rem Gravity begins to pull
+         endif
+      endif
+
+      if MyAcceleration# <> 0.0 : rem If I'm moving
+         P1Y# = P1Y# + MyAcceleration# : rem Find where I'm going
+         position object 1, P1X#,P1Y#,P1Z# : rem Put me there
+         EmptySpace = 0 : ObjectsChecked = 0 : rem Get ready to start checking collisions
+         for CheckObject = 6 to 12 : rem Check the floor and every step object
+            if object collision(1,CheckObject)>0 : rem If I hit an object
+               P1Y# = P1Y# - MyAcceleration# : rem Find where I was
+               position object 1, P1X#,P1Y#,P1Z# : rem Put me back
+               MyAcceleration# = 0.0 : rem Stop me from moving
+            else : rem If the space I'm going to is just air
+               EmptySpace = EmptySpace + 1 : rem rem Mark up a free space
+            endif
+            ObjectsChecked = ObjectsChecked + 1 : rem Done with that one!
+         next CheckObject : rem On to the next one!
+         if EmptySpace = ObjectsChecked : rem If I've checked all the objects and nothing is in my path
+            MyAcceleration# = MyAcceleration# - Gravity# : rem Gravity pulls more
+         endif
+      endif
+
+   Rem Sphere Collision
+
+      for t = 1 to NumberOfFruits : rem If I hit one of the little fruits
+         if Object collision(1,t + NumberOfFruits)>0
+            play sound 4
+            MyScore = MyScore + 100 : rem How many points each little fruit is worth
+
+            ` delete object t + NumberOfFruits
+            exclude object on t + NumberOfFruits
+         endIf
+      next t
+
+      If Object collision(1,100)>0 : rem If I hit the super fruit
+         play sound 5
+         exclude object on 100
+         MyScore = MyScore + 1000 : rem How many points the super fruit is worth
+      endIf
+   REM MOVE CAMERA
+   cpZ# = Newzvalue(P1Z#,A1Y-180,200)
+   cpX# = Newxvalue(P1X#,A1Y-180,200)
+   if cpX#<-999 then cpX#=-999
+   if cpZ#<-999 then cpZ#=-999
+   if cpX#>999 then cpX#=999
+   if cpZ#>999 then cpZ#=999
+   Position camera cpX#,P1Y#+65,cpZ#
+   Point camera P1X#,P1Y#+35,P1Z#
+   REM REFRESH SCREEN
+   sync
+
+   rem Check Timer
+   if MyTimer = 0 : rem If the game is over
+      for x = 1 to 100 : rem Check all the game object
+         if object exist(x) = 1 then delete object x
+      next x
+      backdrop off
+      gosub EndSection
+   endif
+   if MyTimer > 0 then MyTimer = MyTimer - 1 : rem Timer countdown
+
+loop
+
+REM *** STOP MAIN SECTION
+REM *****************************************
+
+REM *****************************************
+REM *** START END SECTION
+REM *** END SECTION HEADER
+
+EndSection:
+REM DECLARE VARIABLES
+REM SCREEN DISPLAY
+cls 0
+center text 320,200,"YOUR SCORE: "+str$(MyScore)
+center text 320,240,"PLAY AGAIN [Y/N]?"
+REM SOUND EFFECTS
+stop sound 1
+play sound 2
+REM SPECIAL EFFECTS
+REM REFRESH SCREEN
+sync
+
+REM *** END SECTION LOOP
+do
+   if scancode()=0 then exit
+loop
+do
+   REM CONTROL INPUT
+   if Inkey$()="y"
+      loop sound 1
+      gosub OptionsSection
+   endif
+
+   if Inkey$()="n"
+      cls : end
+   endif
+   REM REFRESH SCREEN
+   sync
+loop
+
+end
+REM *** STOP END SECTION
+REM *****************************************
